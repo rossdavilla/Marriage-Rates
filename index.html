@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changing Marriage Rates · 1970–2025</title>
+  <meta name="description" content="How the share of Americans ages 25–34 who are married fell from 86 in 100 to 34 in 100. An interactive look at the data." />
+
+  <!-- Social share -->
+  <meta property="og:title" content="Changing Marriage Rates (1970–2025)" />
+  <meta property="og:description" content="Would you have been married? Spin to find out — and see how marriage among 25–34-year-olds collapsed." />
+  <meta property="og:image" content="img/og-card.jpg" />
+  <meta property="og:type" content="website" />
+
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --blue:      #4b54e8;
+      --blue-deep: #2a2f8f;
+      --ink:       #1e1b4b;
+      --coral:     #f4553d;
+      --gold:      #ffc93c;
+      --peri:      #e7e8fd;
+      --peri-2:    #cdd1fb;
+      --cream:     #fbf8f1;
+      --card:      #ffffff;
+      --muted:     #6a6790;
+
+      --shadow-sm: 0 2px 6px rgba(30, 27, 75, 0.08);
+      --shadow-md: 0 8px 24px rgba(30, 27, 75, 0.12);
+      --radius:    18px;
+
+      --font-head: "Poppins", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3 { font-family: var(--font-head); line-height: 1.12; margin: 0; }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      background: url("img/hero-banner.jpg") center / cover no-repeat, var(--cream);
+      min-height: 46vw;
+      max-height: 620px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .hero-inner {
+      max-width: 560px;
+      background: rgba(251, 248, 241, 0.72);
+      backdrop-filter: blur(3px);
+      border-radius: 24px;
+      padding: 26px 30px;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 6vw, 68px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .hero h1 .accent { color: var(--coral); }
+
+    .hero p {
+      font-size: clamp(15px, 2.2vw, 20px);
+      color: var(--ink);
+      margin: 12px 0 0;
+      font-weight: 500;
+    }
+
+    .hero .kicker {
+      display: inline-block;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: var(--peri);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    /* ---------- Section shell ---------- */
+    section { padding: 56px 0; }
+
+    .lead {
+      font-size: clamp(17px, 2.4vw, 21px);
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto;
+      color: var(--ink);
+    }
+
+    .lead b { color: var(--coral); }
+
+    .section-title {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: var(--muted);
+      max-width: 620px;
+      margin: 0 auto 28px;
+    }
+
+    /* ---------- Divider strip ---------- */
+    .divider {
+      background: url("img/divider-icons.png") center / auto 46px repeat-x;
+      height: 60px;
+      opacity: 0.9;
+    }
+
+    /* ---------- Interactive card ---------- */
+    .panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 26px;
+      border: 1px solid rgba(30,27,75,0.06);
+    }
+
+    /* Year control */
+    .year-control { text-align: center; margin-bottom: 8px; }
+
+    .year-readout {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: clamp(44px, 9vw, 76px);
+      color: var(--blue);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      max-width: 560px;
+      margin: 10px auto 4px;
+    }
+
+    .slider-row .end-label { font-weight: 600; color: var(--muted); font-size: 14px; min-width: 38px; }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--peri-2);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 4px solid #fff;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 4px solid #fff;
+      cursor: pointer;
+    }
+
+    /* Year stepper (− / + buttons) */
+    .year-stepper {
+      display: flex; align-items: center; justify-content: center;
+      gap: 20px; margin-top: 6px;
+    }
+    .step-btn {
+      width: 64px; height: 64px; border-radius: 50%;
+      border: none; background: var(--blue); color: #fff;
+      font-family: var(--font-head); font-weight: 700; font-size: 34px; line-height: 1;
+      cursor: pointer; box-shadow: 0 5px 0 var(--blue-deep);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-btn:hover { transform: translateY(-1px); }
+    .step-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--blue-deep); }
+    .step-btn:disabled { opacity: 0.4; box-shadow: 0 5px 0 var(--blue-deep); transform: none; cursor: default; }
+    .year-stepper .year-readout { min-width: 3.2ch; }
+
+    /* Probability bar */
+    .prob {
+      max-width: 560px; margin: 22px auto 0; text-align: center;
+    }
+    .prob-caption { font-size: 15px; color: var(--muted); margin-bottom: 8px; }
+    .prob-caption b { color: var(--ink); font-weight: 700; }
+    .prob-bar {
+      display: flex; height: 30px; border-radius: 999px; overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(30,27,75,0.08);
+    }
+    .prob-married { background: var(--coral); }
+    .prob-single  { background: var(--peri-2); }
+    .prob-bar span {
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; color: #fff;
+      transition: width 0.4s ease;
+      white-space: nowrap;
+    }
+    .prob-single span, .prob-single { color: var(--ink); }
+    .prob-legend { display: flex; gap: 18px; justify-content: center; margin-top: 8px; font-size: 13px; color: var(--muted); }
+    .prob-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+
+    /* ---------- Spinner ---------- */
+    .spin-wrap { margin-top: 30px; }
+
+    .spin-head {
+      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 6px;
+    }
+    .spin-head img { width: 54px; height: 54px; }
+    .spin-head h3 { font-size: clamp(20px, 3.4vw, 28px); font-weight: 700; }
+
+    .reel-viewport {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      background: linear-gradient(180deg, var(--peri) 0%, #fff 100%);
+      border: 1px solid rgba(30,27,75,0.08);
+      padding: 18px 0;
+      margin: 14px auto 0;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+    }
+
+    .reel-strip {
+      display: flex;
+      gap: 12px;
+      will-change: transform;
+      transform: translateX(0);
+    }
+
+    .reel-card {
+      flex: 0 0 auto;
+      width: 122px;
+      height: 150px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+    .reel-card.type-married { background: #ffffff; border: 2px solid #ffe3a0; }
+    .reel-card.type-single  { background: #d9ddff; border: 2px solid #c2c8fb; }
+    .reel-card img { width: 88%; height: 78%; object-fit: contain; }
+    .reel-card .tag {
+      position: absolute; bottom: 8px;
+      font-family: var(--font-head); font-weight: 700; font-size: 11px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 2px 10px; border-radius: 999px;
+    }
+    .reel-card.type-married .tag { background: var(--coral); color: #fff; }
+    .reel-card.type-single  .tag { background: var(--blue);  color: #fff; }
+
+    .reel-card.win { transform: scale(1.06); z-index: 3; }
+    .reel-card.win.type-married { box-shadow: 0 0 0 4px var(--coral), 0 10px 24px rgba(244,85,61,0.35); }
+    .reel-card.win.type-single  { box-shadow: 0 0 0 4px var(--blue),  0 10px 24px rgba(75,84,232,0.35); }
+
+    /* center marker */
+    .reel-marker {
+      position: absolute; top: 8px; bottom: 8px; left: 50%;
+      width: 138px; transform: translateX(-50%);
+      border: 3px dashed rgba(30,27,75,0.28);
+      border-radius: 18px;
+      pointer-events: none; z-index: 2;
+    }
+    .reel-marker::before {
+      content: ""; position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      border-left: 10px solid transparent; border-right: 10px solid transparent;
+      border-top: 14px solid var(--ink);
+    }
+
+    .spin-actions { text-align: center; margin-top: 20px; }
+
+    .btn {
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 18px;
+      padding: 14px 32px;
+      border-radius: 999px;
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 6px 0 var(--blue-deep);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--blue-deep); }
+    .btn:disabled { opacity: 0.55; cursor: default; box-shadow: 0 6px 0 var(--blue-deep); transform: none; }
+
+    .spin-hint { color: var(--muted); font-size: 14px; margin-top: 10px; }
+
+    /* result */
+    .result {
+      margin: 20px auto 0; max-width: 560px; text-align: center;
+      border-radius: 16px; padding: 18px 20px;
+      background: var(--peri); border: 1px solid var(--peri-2);
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .result.show { opacity: 1; transform: none; }
+    .result.married { background: #ffe9e4; border-color: #f7b7ab; }
+    .result.single  { background: var(--peri); border-color: var(--peri-2); }
+    .result .verdict { font-family: var(--font-head); font-weight: 800; font-size: clamp(22px, 4vw, 30px); }
+    .result.married .verdict { color: var(--coral); }
+    .result.single  .verdict { color: var(--blue); }
+    .result .detail { color: var(--ink); margin-top: 4px; font-size: 15px; }
+
+    .tally {
+      margin: 14px auto 0; max-width: 560px; text-align: center;
+      font-size: 14px; color: var(--muted);
+    }
+    .tally b { color: var(--ink); }
+
+    /* ---------- Chart ---------- */
+    .chart-panel { position: relative; overflow: hidden; }
+    .chart-flourish {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; opacity: 0.06; pointer-events: none;
+    }
+    #marriageChart { width: 100%; height: auto; position: relative; z-index: 1; }
+    .chart-annot { font-family: var(--font-body); font-size: 13px; font-weight: 600; fill: var(--muted); }
+    .grid-line { stroke: #e7e8fd; stroke-width: 1.5; }
+    .axis-label { font-family: var(--font-body); font-size: 13px; fill: var(--muted); }
+    .head-label-bg { fill: var(--blue); }
+    .head-label-tx { font-family: var(--font-head); font-weight: 700; font-size: 15px; fill: #fff; }
+
+    /* ---------- Era cards ---------- */
+    .eras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 8px; }
+    .era {
+      background: var(--card); border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow-md); border: 1px solid rgba(30,27,75,0.06);
+      display: flex; flex-direction: column;
+    }
+    .era img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+    .era-body { padding: 16px 18px 20px; }
+    .era-year { font-family: var(--font-head); font-weight: 800; font-size: 26px; color: var(--blue); }
+    .era-stat { font-weight: 700; color: var(--coral); font-size: 15px; margin: 2px 0 6px; }
+    .era-body p { margin: 0; font-size: 14px; color: var(--ink); }
+
+    /* ---------- Takeaway ---------- */
+    .takeaway { text-align: center; }
+    .takeaway .big {
+      font-family: var(--font-head); font-weight: 800;
+      font-size: clamp(26px, 4.5vw, 40px); letter-spacing: -0.01em;
+    }
+    .takeaway .big .down { color: var(--coral); }
+    .takeaway p { max-width: 680px; margin: 14px auto 0; color: var(--ink); }
+
+    .sources {
+      margin-top: 34px; padding: 20px; border-radius: 14px;
+      background: #fff; border: 1px solid rgba(30,27,75,0.08);
+      font-size: 13px; color: var(--muted); text-align: left; max-width: 720px; margin-left: auto; margin-right: auto;
+    }
+    .sources h4 { font-family: var(--font-head); font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); margin: 0 0 8px; }
+    .sources a { color: var(--blue); }
+
+    footer { text-align: center; padding: 30px 20px 44px; color: var(--muted); font-size: 13px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 720px) {
+      .hero { min-height: 300px; }
+      .eras { grid-template-columns: 1fr; }
+      .reel-card { width: 96px; height: 124px; }
+      .reel-marker { width: 110px; }
+      .panel { padding: 18px; }
+      section { padding: 44px 0; }
+      .step-btn { width: 58px; height: 58px; font-size: 30px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reel-strip { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="kicker">United States · Ages 25–34</span>
+      <h1>Changing <span class="accent">Marriage</span> Rates</h1>
+      <p>In 1970, most young adults were married. Today, most aren't. Here's the shift — from 1970 to 2025.</p>
+    </div>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- ============ INTRO ============ -->
+  <section>
+    <div class="wrap">
+      <p class="lead">
+        Among Americans aged 25 to 34, the share who are married fell from
+        <b>86 in every 100</b> in 1970 to just <b>34 in every 100</b> in 2025.
+        Scroll down to explore the change — and to find out whether <em>you</em>
+        would have been married.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ CHART (static) ============ -->
+  <section style="padding-top: 8px;">
+    <div class="wrap">
+      <h2 class="section-title">The long decline</h2>
+      <p class="section-sub">Share of 25–34-year-olds who were married, 1970 to 2025.</p>
+
+      <div class="panel chart-panel">
+        <svg id="marriageChart" viewBox="0 0 834 470" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="Area chart: the married share of 25 to 34 year olds fell from 86 per 100 in 1970 to 34 per 100 in 2025.">
+          <!-- 'Not married' region (above the line) -->
+          <rect x="70" y="34" width="725" height="376" fill="#f2685b" />
+          <!-- 'Married' region (below the line) -->
+          <path d="M70,410 L70,86.6 L201.8,150.56 L333.6,184.4 L465.5,244.56 L597.3,278.4 L729.1,282.16 L795,282.16 L795,410 Z"
+                fill="#6d8cf2" />
+
+          <!-- gridlines -->
+          <g stroke="#ffffff" stroke-opacity="0.5" stroke-width="1.5">
+            <line x1="70" y1="34"  x2="795" y2="34" />
+            <line x1="70" y1="128" x2="795" y2="128" />
+            <line x1="70" y1="222" x2="795" y2="222" />
+            <line x1="70" y1="316" x2="795" y2="316" />
+          </g>
+          <line x1="70" y1="410" x2="795" y2="410" stroke="#c9cbe8" stroke-width="2" />
+
+          <!-- y-axis numbers -->
+          <g fill="#4a4770" font-family="Inter, sans-serif" font-size="18" text-anchor="end">
+            <text x="60" y="42">100</text>
+            <text x="60" y="136">75</text>
+            <text x="60" y="230">50</text>
+            <text x="60" y="324">25</text>
+            <text x="60" y="418">0</text>
+          </g>
+          <!-- y-axis title -->
+          <text transform="translate(26,222) rotate(-90)" text-anchor="middle"
+                fill="#4a4770" font-family="Inter, sans-serif" font-size="22">Married per 100 (ages 25–34)</text>
+
+          <!-- x-axis years -->
+          <g fill="#4a4770" font-family="Inter, sans-serif" font-size="24" text-anchor="middle">
+            <text x="70"    y="444">1970</text>
+            <text x="201.8" y="444">1980</text>
+            <text x="333.6" y="444">1990</text>
+            <text x="465.5" y="444">2000</text>
+            <text x="597.3" y="444">2010</text>
+            <text x="795"   y="444">2025</text>
+          </g>
+
+          <!-- trend line -->
+          <polyline points="70,86.6 201.8,150.56 333.6,184.4 465.5,244.56 597.3,278.4 729.1,282.16 795,282.16"
+                    fill="none" stroke="#4b54e8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- data-point dots -->
+          <g fill="#2a2f8f" stroke="#ffffff" stroke-width="3">
+            <circle cx="70"    cy="86.6"   r="6.5" />
+            <circle cx="201.8" cy="150.56" r="6.5" />
+            <circle cx="333.6" cy="184.4"  r="6.5" />
+            <circle cx="465.5" cy="244.56" r="6.5" />
+            <circle cx="597.3" cy="278.4"  r="6.5" />
+            <circle cx="795"   cy="282.16" r="6.5" />
+          </g>
+
+          <!-- percentage labels -->
+          <g font-family="Poppins, sans-serif" font-weight="700" font-size="26" text-anchor="middle" fill="#ffffff">
+            <g><rect x="68"    y="40.6"  width="52" height="32" rx="9" fill="#2a2f8f" /><text x="94"    y="65.6">86</text></g>
+            <g><rect x="175.8" y="104.56" width="52" height="32" rx="9" fill="#2a2f8f" /><text x="201.8" y="129.56">69</text></g>
+            <g><rect x="307.6" y="138.4" width="52" height="32" rx="9" fill="#2a2f8f" /><text x="333.6" y="163.4">60</text></g>
+            <g><rect x="439.5" y="198.56" width="52" height="32" rx="9" fill="#2a2f8f" /><text x="465.5" y="223.56">44</text></g>
+            <g><rect x="571.3" y="232.4" width="52" height="32" rx="9" fill="#2a2f8f" /><text x="597.3" y="257.4">35</text></g>
+            <g><rect x="745"   y="236.16" width="52" height="32" rx="9" fill="#2a2f8f" /><text x="771"   y="261.16">34</text></g>
+          </g>
+
+          <!-- legend -->
+          <g font-family="Inter, sans-serif" font-size="22">
+            <rect x="70"  y="12" width="18" height="18" rx="4" fill="#6d8cf2" />
+            <text x="94"  y="27" fill="#4a4770">Married</text>
+            <rect x="200" y="12" width="18" height="18" rx="4" fill="#f2685b" />
+            <text x="224" y="27" fill="#4a4770">Not married</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INTERACTIVE ============ -->
+  <section id="explore" style="padding-top: 8px;">
+    <div class="wrap">
+      <h2 class="section-title">Pick a year</h2>
+      <p class="section-sub">Move through time and watch how the odds change.</p>
+
+      <div class="panel">
+        <div class="year-control">
+          <div class="year-stepper">
+            <button class="step-btn" id="yearMinus" aria-label="Earlier (minus 5 years)">−</button>
+            <div class="year-readout" id="yearReadout">1970</div>
+            <button class="step-btn" id="yearPlus" aria-label="Later (plus 5 years)">+</button>
+          </div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-caption">
+            In <b id="probYear">1970</b>, <b id="probMarried">86</b> of every 100 people aged 25–34 were <b>married</b>.
+          </div>
+          <div class="prob-bar">
+            <span class="prob-married" id="barMarried" style="width:86%">86%</span>
+            <span class="prob-single"  id="barSingle"  style="width:14%">14%</span>
+          </div>
+          <div class="prob-legend">
+            <span><i style="background:var(--coral)"></i>Married</span>
+            <span><i style="background:var(--peri-2)"></i>Not married</span>
+          </div>
+        </div>
+
+        <!-- Spinner -->
+        <div class="spin-wrap">
+          <div class="spin-head">
+            <h3>Would you be married?</h3>
+          </div>
+          <p class="section-sub" style="margin-bottom:6px;">
+            Click Spin to see if you would be married in <span id="spinYear">1970</span>
+          </p>
+
+          <div class="reel-viewport" id="reelViewport">
+            <div class="reel-marker"></div>
+            <div class="reel-strip" id="reelStrip"></div>
+          </div>
+
+          <div class="spin-actions">
+            <button class="btn" id="spinBtn">Spin</button>
+          </div>
+
+          <div class="result" id="result">
+            <div class="verdict" id="verdict"></div>
+          </div>
+
+          <div class="tally" id="tally"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ============ ERA CARDS ============ -->
+  <section>
+    <div class="wrap">
+      <h2 class="section-title">What changed?</h2>
+
+      <div class="eras">
+        <article class="era">
+          <img src="img/era-1970.jpg" alt="A young married couple in front of a suburban house in 1970." />
+          <div class="era-body">
+            <div class="era-year">1970</div>
+            <div class="era-stat">86 in 100 married</div>
+            <p>Marriage came early and nearly universally. By their late twenties, most had a spouse, a home, and often kids.</p>
+          </div>
+        </article>
+        <article class="era">
+          <img src="img/era-1990.jpg" alt="Young adults balancing careers and school in 1990." />
+          <div class="era-body">
+            <div class="era-year">1990</div>
+            <div class="era-stat">60 in 100 married</div>
+            <p>College and careers stretched the runway to adulthood. People married later, and apartments replaced starter homes.</p>
+          </div>
+        </article>
+        <article class="era">
+          <img src="img/era-2025.jpg" alt="Independent young adults living solo in a city in 2025." />
+          <div class="era-body">
+            <div class="era-year">2025</div>
+            <div class="era-stat">34 in 100 married</div>
+            <p>Living solo, renting, and staying single into one's thirties is now the norm — not the exception.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TAKEAWAY ============ -->
+  <section class="takeaway" style="padding-top: 8px;">
+    <div class="wrap">
+      <div class="sources">
+        <h4>Data &amp; notes</h4>
+        <p style="margin:0 0 8px;">
+          Figures show the share of U.S. adults ages 25–34 who were married, per 100 people.
+          Source: U.S. Census Bureau, "Living Arrangements" (2024), with marriage-rate figures for
+          2025 and earlier years drawn from Census Bureau data.
+          <a href="https://www.census.gov/library/stories/2024/05/living-arrangements.html" target="_blank" rel="noopener">census.gov</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ---------- Data (share married, ages 25–34, per 100) ----------
+    const MIN_YEAR = 1970, MAX_YEAR = 2025;
+    const YEAR_POINTS = [
+      { year: 1970, count: 86 },
+      { year: 1980, count: 69 },
+      { year: 1990, count: 60 },
+      { year: 2000, count: 44 },
+      { year: 2010, count: 35 },
+      { year: 2020, count: 34 },
+      { year: 2025, count: 34 }
+    ];
+
+    function marriedCountForYear(year) {
+      if (year <= YEAR_POINTS[0].year) return YEAR_POINTS[0].count;
+      const last = YEAR_POINTS[YEAR_POINTS.length - 1];
+      if (year >= last.year) return last.count;
+      for (let i = 0; i < YEAR_POINTS.length - 1; i++) {
+        const a = YEAR_POINTS[i], b = YEAR_POINTS[i + 1];
+        if (year >= a.year && year <= b.year) {
+          const t = (year - a.year) / (b.year - a.year);
+          return Math.round(a.count + t * (b.count - a.count));
+        }
+      }
+      return last.count;
+    }
+
+    // ---------- Elements ----------
+    const yearMinus    = document.getElementById("yearMinus");
+    const yearPlus     = document.getElementById("yearPlus");
+    const yearReadout  = document.getElementById("yearReadout");
+    const probYear     = document.getElementById("probYear");
+    const probMarried  = document.getElementById("probMarried");
+    const barMarried   = document.getElementById("barMarried");
+    const barSingle    = document.getElementById("barSingle");
+    const spinYear     = document.getElementById("spinYear");
+
+    const YEAR_STEP = 5;
+    let currentYear = MIN_YEAR;
+
+    // ---------- Year handling ----------
+    function setYear(year) {
+      currentYear = year;
+      const m = marriedCountForYear(year);
+      const s = 100 - m;
+
+      yearReadout.textContent = year;
+      probYear.textContent = year;
+      probMarried.textContent = m;
+      spinYear.textContent = year;
+
+      barMarried.style.width = m + "%";
+      barMarried.textContent = m + "%";
+      barSingle.style.width = s + "%";
+      barSingle.textContent = s + "%";
+
+      yearMinus.disabled = year <= MIN_YEAR;
+      yearPlus.disabled = year >= MAX_YEAR;
+
+      resetTally();
+
+      // Refresh the resting reel so it reflects the new year's odds
+      if (typeof spinning !== "undefined" && !spinning) {
+        buildReel(null);
+        reelStrip.style.transform = `translateX(${centerOffsetFor(LAND_INDEX)}px)`;
+      }
+    }
+
+    const clampYear = y => Math.min(MAX_YEAR, Math.max(MIN_YEAR, y));
+    yearMinus.addEventListener("click", () => setYear(clampYear(currentYear - YEAR_STEP)));
+    yearPlus.addEventListener("click", () => setYear(clampYear(currentYear + YEAR_STEP)));
+
+    // ================= SPINNER =================
+    const COUPLE_IMGS = ["couple1.png","couple2.png","couple3.png","couple4.png","couple5.png"];
+    const SINGLE_IMGS = ["single1.png","single2.png","single3.png","single4.png","single5.png",
+                         "single6.png","single7.png","single8.png","single9.png","single10.png"];
+
+    const reelViewport = document.getElementById("reelViewport");
+    const reelStrip    = document.getElementById("reelStrip");
+    const spinBtn      = document.getElementById("spinBtn");
+    const resultBox    = document.getElementById("result");
+    const verdictEl    = document.getElementById("verdict");
+    const tallyEl      = document.getElementById("tally");
+
+    const GAP = 12;
+    const REEL_LEN = 48;
+    const LAND_INDEX = 42;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let spinning = false;
+    let tally = { spins: 0, married: 0 };
+
+    const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    function makeCard(type) {
+      const card = document.createElement("div");
+      card.className = "reel-card type-" + type;
+      const img = document.createElement("img");
+      img.src = "img/" + (type === "married" ? rand(COUPLE_IMGS) : rand(SINGLE_IMGS));
+      img.alt = "";
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = type === "married" ? "Married" : "Single";
+      card.appendChild(img);
+      card.appendChild(tag);
+      return card;
+    }
+
+    // Build an initial resting reel so the viewport isn't empty
+    function buildReel(finalType) {
+      reelStrip.innerHTML = "";
+      const marriedProb = marriedCountForYear(currentYear) / 100;
+      for (let i = 0; i < REEL_LEN; i++) {
+        let type;
+        if (i === LAND_INDEX && finalType) type = finalType;
+        else type = Math.random() < marriedProb ? "married" : "single";
+        reelStrip.appendChild(makeCard(type));
+      }
+    }
+
+    function stepWidth() {
+      const card = reelStrip.querySelector(".reel-card");
+      return card ? card.offsetWidth + GAP : 122 + GAP;
+    }
+
+    function centerOffsetFor(index) {
+      const step = stepWidth();
+      const cardW = step - GAP;
+      const cardCenter = index * step + cardW / 2;
+      return reelViewport.clientWidth / 2 - cardCenter;
+    }
+
+    function clearWin() {
+      const w = reelStrip.querySelector(".reel-card.win");
+      if (w) w.classList.remove("win");
+    }
+
+    function spin() {
+      if (spinning) return;
+      spinning = true;
+      spinBtn.disabled = true;
+      resultBox.classList.remove("show");
+      clearWin();
+
+      // decide outcome at this year's odds
+      const marriedProb = marriedCountForYear(currentYear) / 100;
+      const outcome = Math.random() < marriedProb ? "married" : "single";
+
+      buildReel(outcome);
+      // start position: reset to 0
+      reelStrip.style.transition = "none";
+      reelStrip.style.filter = "none";
+      reelStrip.style.transform = "translateX(0px)";
+      // force reflow so the reset applies before animating
+      void reelStrip.offsetWidth;
+
+      const target = centerOffsetFor(LAND_INDEX);
+
+      if (prefersReduced) {
+        reelStrip.style.transform = `translateX(${target}px)`;
+        land(outcome);
+        return;
+      }
+
+      animateTo(target, 2600, () => land(outcome));
+    }
+
+    // requestAnimationFrame easing (easeOutQuart) with velocity-based blur
+    function animateTo(target, duration, done) {
+      const start = 0;
+      const dist = target - start;
+      const t0 = performance.now();
+      let last = start;
+
+      function frame(now) {
+        let p = (now - t0) / duration;
+        if (p > 1) p = 1;
+        const eased = 1 - Math.pow(1 - p, 4);
+        const x = start + dist * eased;
+
+        const v = Math.abs(x - last);
+        last = x;
+        const blur = Math.min(5, v * 0.06);
+        reelStrip.style.filter = blur > 0.3 ? `blur(${blur}px)` : "none";
+        reelStrip.style.transform = `translateX(${x}px)`;
+
+        if (p < 1) requestAnimationFrame(frame);
+        else { reelStrip.style.filter = "none"; done(); }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function land(outcome) {
+      const winCard = reelStrip.children[LAND_INDEX];
+      if (winCard) winCard.classList.add("win");
+
+      resultBox.className = "result show " + outcome;
+      verdictEl.textContent = outcome === "married" ? "💍 You'd be married" : "☕ You'd be single";
+
+      tally.spins++;
+      if (outcome === "married") tally.married++;
+      renderTally();
+
+      spinning = false;
+      spinBtn.disabled = false;
+    }
+
+    function renderTally() {
+      if (tally.spins === 0) { tallyEl.innerHTML = ""; return; }
+      const pct = Math.round((tally.married / tally.spins) * 100);
+      tallyEl.innerHTML =
+        `Across <b>${tally.spins}</b> spin${tally.spins > 1 ? "s" : ""} at ${currentYear}: ` +
+        `<b>${tally.married}</b> married · <b>${tally.spins - tally.married}</b> single ` +
+        `— that's <b>${pct}%</b> married.`;
+    }
+
+    function resetTally() {
+      tally = { spins: 0, married: 0 };
+      renderTally();
+      resultBox.classList.remove("show");
+      clearWin();
+    }
+
+    spinBtn.addEventListener("click", spin);
+
+    // ---------- Init ----------
+    buildReel(null);            // fill viewport at rest
+    reelStrip.style.transform = `translateX(${centerOffsetFor(LAND_INDEX)}px)`;
+    setYear(MIN_YEAR);
+
+    // keep reel roughly centered on resize
+    window.addEventListener("resize", () => {
+      if (!spinning) reelStrip.style.transform = `translateX(${centerOffsetFor(LAND_INDEX)}px)`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+Icon?
+
+# Local-only dev artifacts (kept on disk, not published)
+v[0-9].html
+v[0-9] - *.html
+img/Original/
+Design docs/
