@@ -39,7 +39,7 @@
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 10px;
+      gap: 8px;
       padding: 12px 20px;
       text-align: center;
     }
@@ -128,7 +128,7 @@
     /* ---- Spin button ---- */
     .btn {
       font-family: var(--font-head); font-weight: 700; font-size: 17px;
-      padding: 10px 30px; border-radius: 999px; border: none;
+      padding: 10px 30px; min-width: 156px; border-radius: 999px; border: none;
       background: var(--blue); color: #fff; cursor: pointer;
       box-shadow: 0 5px 0 var(--blue-deep);
       transition: transform .08s ease, box-shadow .08s ease;
@@ -150,9 +150,11 @@
     .verdict.show { opacity: 1; transform: none; }
     .verdict.married { color: var(--coral); }
     .verdict.single  { color: var(--blue); }
-    .year-log { display: flex; flex-direction: column; gap: 2px; }
-    .yr-line { font-size: 12px; line-height: 1.3; color: var(--muted); }
-    .yr-line b { color: var(--ink); font-weight: 700; }
+    .year-log { display: flex; flex-direction: column; gap: 3px; }
+    .yr-line { font-size: 14px; line-height: 1.35; color: var(--ink); }
+    .yr-line b { color: var(--ink); font-weight: 800; }
+    .o-married { color: var(--coral); font-weight: 700; }
+    .o-single  { color: var(--blue);  font-weight: 700; }
 
     @media (prefers-reduced-motion: reduce) {
       .reel-strip { transition: none !important; }
@@ -245,12 +247,20 @@
 
       yearBtns.forEach(b => b.classList.toggle("active", parseInt(b.dataset.year, 10) === year));
 
-      // Clear the one-off verdict on year switch; the per-year log below persists.
-      verdictEl.classList.remove("show");
       clearWin();
       if (typeof spinning !== "undefined" && !spinning) {
-        buildReel(null);
-        reelStrip.style.transform = `translateX(${centerOffsetFor(LAND_INDEX)}px)`;
+        if (year in outcomes) {
+          // Already rolled: replay this year's single, locked result.
+          buildReel(outcomes[year]);
+          reelStrip.style.transform = `translateX(${centerOffsetFor(LAND_INDEX)}px)`;
+          reelStrip.children[LAND_INDEX].classList.add("win");
+          showVerdict(outcomes[year]);
+        } else {
+          verdictEl.classList.remove("show");
+          buildReel(null);
+          reelStrip.style.transform = `translateX(${centerOffsetFor(LAND_INDEX)}px)`;
+        }
+        updateSpinButton();
       }
     }
 
@@ -275,8 +285,8 @@
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let spinning = false;
-    let tallies = {};     // year -> { spins, married }
-    let spunOrder = [];   // years in the order they were first spun
+    let outcomes = {};    // year -> "married" | "single" (one locked roll per year)
+    let spunOrder = [];   // years in the order they were first rolled
 
     const rand = arr => arr[Math.floor(Math.random() * arr.length)];
 
@@ -322,8 +332,19 @@
       if (w) w.classList.remove("win");
     }
 
+    function showVerdict(outcome) {
+      verdictEl.className = "verdict show " + outcome;
+      verdictEl.textContent = outcome === "married" ? "💍 You're married" : "☕ You're single";
+    }
+
+    function updateSpinButton() {
+      const rolled = currentYear in outcomes;
+      spinBtn.disabled = rolled;
+      spinBtn.textContent = rolled ? "Rolled ✓" : "Spin";
+    }
+
     function spin() {
-      if (spinning) return;
+      if (spinning || currentYear in outcomes) return;
       spinning = true;
       spinBtn.disabled = true;
       verdictEl.classList.remove("show");
@@ -372,25 +393,22 @@
       const winCard = reelStrip.children[LAND_INDEX];
       if (winCard) winCard.classList.add("win");
 
-      verdictEl.className = "verdict show " + outcome;
-      verdictEl.textContent = outcome === "married" ? "💍 You'd be married" : "☕ You'd be single";
+      showVerdict(outcome);
 
       const y = currentYear;
-      if (!tallies[y]) { tallies[y] = { spins: 0, married: 0 }; spunOrder.push(y); }
-      tallies[y].spins++;
-      if (outcome === "married") tallies[y].married++;
-      renderLog();
+      if (!(y in outcomes)) spunOrder.push(y);
+      outcomes[y] = outcome;
+      renderResults();
 
       spinning = false;
-      spinBtn.disabled = false;
+      updateSpinButton();
     }
 
-    function renderLog() {
+    function renderResults() {
       yearLogEl.innerHTML = spunOrder.map(y => {
-        const t = tallies[y];
-        const pct = Math.round((t.married / t.spins) * 100);
-        return `<div class="yr-line"><b>${y}</b> — <b>${t.spins}</b> spin${t.spins > 1 ? "s" : ""}: ` +
-               `<b>${t.married}</b> married · <b>${t.spins - t.married}</b> single · <b>${pct}%</b> married</div>`;
+        const o = outcomes[y];
+        const label = o === "married" ? "You're married" : "You're single";
+        return `<div class="yr-line"><b>${y}</b> — <span class="o-${o}">${label}</span></div>`;
       }).join("");
     }
 
