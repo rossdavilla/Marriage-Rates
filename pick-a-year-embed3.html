@@ -137,17 +137,22 @@
     .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--blue-deep); }
     .btn:disabled { opacity: .55; box-shadow: 0 5px 0 var(--blue-deep); transform: none; cursor: default; }
 
-    /* ---- Result + tally (fixed height so layout never jumps) ---- */
-    .result-area { height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+    /* ---- Feedback: immediate verdict + per-year running log ---- */
+    .feedback {
+      width: 100%; min-height: 76px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      gap: 4px;
+    }
     .verdict {
-      font-family: var(--font-head); font-weight: 800; font-size: 20px;
+      font-family: var(--font-head); font-weight: 800; font-size: 18px; min-height: 22px;
       opacity: 0; transform: translateY(4px); transition: opacity .3s ease, transform .3s ease;
     }
     .verdict.show { opacity: 1; transform: none; }
     .verdict.married { color: var(--coral); }
     .verdict.single  { color: var(--blue); }
-    .tally { font-size: 12px; color: var(--muted); min-height: 15px; }
-    .tally b { color: var(--ink); }
+    .year-log { display: flex; flex-direction: column; gap: 2px; }
+    .yr-line { font-size: 12px; line-height: 1.3; color: var(--muted); }
+    .yr-line b { color: var(--ink); font-weight: 700; }
 
     @media (prefers-reduced-motion: reduce) {
       .reel-strip { transition: none !important; }
@@ -181,9 +186,9 @@
 
     <button class="btn" id="spinBtn">Spin</button>
 
-    <div class="result-area">
+    <div class="feedback">
       <div class="verdict" id="verdict"></div>
-      <div class="tally" id="tally"></div>
+      <div class="year-log" id="yearLog"></div>
     </div>
   </div>
 
@@ -240,7 +245,9 @@
 
       yearBtns.forEach(b => b.classList.toggle("active", parseInt(b.dataset.year, 10) === year));
 
-      resetTally();
+      // Clear the one-off verdict on year switch; the per-year log below persists.
+      verdictEl.classList.remove("show");
+      clearWin();
       if (typeof spinning !== "undefined" && !spinning) {
         buildReel(null);
         reelStrip.style.transform = `translateX(${centerOffsetFor(LAND_INDEX)}px)`;
@@ -260,7 +267,7 @@
     const reelStrip    = document.getElementById("reelStrip");
     const spinBtn      = document.getElementById("spinBtn");
     const verdictEl    = document.getElementById("verdict");
-    const tallyEl      = document.getElementById("tally");
+    const yearLogEl    = document.getElementById("yearLog");
 
     const GAP = 10;
     const REEL_LEN = 48;
@@ -268,7 +275,8 @@
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let spinning = false;
-    let tally = { spins: 0, married: 0 };
+    let tallies = {};     // year -> { spins, married }
+    let spunOrder = [];   // years in the order they were first spun
 
     const rand = arr => arr[Math.floor(Math.random() * arr.length)];
 
@@ -367,28 +375,23 @@
       verdictEl.className = "verdict show " + outcome;
       verdictEl.textContent = outcome === "married" ? "💍 You'd be married" : "☕ You'd be single";
 
-      tally.spins++;
-      if (outcome === "married") tally.married++;
-      renderTally();
+      const y = currentYear;
+      if (!tallies[y]) { tallies[y] = { spins: 0, married: 0 }; spunOrder.push(y); }
+      tallies[y].spins++;
+      if (outcome === "married") tallies[y].married++;
+      renderLog();
 
       spinning = false;
       spinBtn.disabled = false;
     }
 
-    function renderTally() {
-      if (tally.spins === 0) { tallyEl.innerHTML = ""; return; }
-      const pct = Math.round((tally.married / tally.spins) * 100);
-      tallyEl.innerHTML =
-        `Across <b>${tally.spins}</b> spin${tally.spins > 1 ? "s" : ""} at ${currentYear}: ` +
-        `<b>${tally.married}</b> married · <b>${tally.spins - tally.married}</b> single ` +
-        `— that's <b>${pct}%</b> married.`;
-    }
-
-    function resetTally() {
-      tally = { spins: 0, married: 0 };
-      renderTally();
-      verdictEl.classList.remove("show");
-      clearWin();
+    function renderLog() {
+      yearLogEl.innerHTML = spunOrder.map(y => {
+        const t = tallies[y];
+        const pct = Math.round((t.married / t.spins) * 100);
+        return `<div class="yr-line"><b>${y}</b> — <b>${t.spins}</b> spin${t.spins > 1 ? "s" : ""}: ` +
+               `<b>${t.married}</b> married · <b>${t.spins - t.married}</b> single · <b>${pct}%</b> married</div>`;
+      }).join("");
     }
 
     spinBtn.addEventListener("click", spin);
